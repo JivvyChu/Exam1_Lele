@@ -1,0 +1,34 @@
+1. No it should not be considered a bioinformatics research because bioinformatics solely deals with biological macromolecules such as DNA, RNA, and proteins.2. False3. This result has a high confidence value and is homologous4. Cloning or PCR5. Eukaryotes have 1 genome per cell. Prokaryotes can have multiple.6. Floral color evolutiona. Accession number - AFV73403b. TBLASTN because it compares a protein query against nucleotide sequencesc. It returned 100 hits including Jatropha curcas. 98 not including Jatropha curcas.d. Not including Jatropha curcas itself I found 48 species homologse. The accession numbers are XM_021823063.1, XM_021745956.1, XM_022047871.1, XM_002302392.2, XM_022860040.1, XM_021801356.17. The accession number is JX569771a. BLASTN because is compares a nucleotide query against nucleotide sequencesb. It returned 39 hits including Jatropha curcas.c. Not including Jatropha curcas itself I found 20 species homologsd. The accession numbers are XM_011018849.1, XM_002510109.2, XM_010103368.1, XM_021964517.1, XM_008222055.1, XM_012591173.1.8. Butterflya. Yes. Metapopulation Research Centre, Department of Biosciences, University of Helsinki in Finland (Ilkka Hanski) have been using a software called SPOMSIM to analyze metagenomic dynamics. The website is https://www.helsinki.fi/en/researchgroups/metapopulation-research-centre/software. b. They also use a Bayesian modeling package rstanarm in R found here mc-stan.org/users/interfaces/rstanarm.html c. They have developed a software called SPOMSIM and use rstanarm in R. d. Yes, it can be found on NCBI.e. Take the sequences available for this species and compare it against a draft genome and the differences would be considered SNPs.9. Basic Unixa. grep -c "^>" Homo_sapiens.GRCh38.cds.all.fa outputs 101933 meaning there are 101933 sequences in the fasta fileb. wc -l Homo_sapiens.GRCh38.cds.all.fa outputs 2066758 Homo_sapiens.GRCh38.cds.all.fa which means there are 2066758 lines in the fasta filec. grep "AGATCGG" Homo_sapiens.GRCh38.cds.all.fa yes the adapter sequence is present within the file.10. Advance Unixa. awk '/^>/{sub(">", ">"++i " ")}1' Homo_sapiens.GRCh38.cds.all.fab. grep -v "^#" Homo_sapiens.GRCh38.82.abinitio.gtf | cut -f1,3,4,5 > sorted.bedc. grep "exon" sorted.bed > exon.bed and grep "transcript" sorted.bed > transcript.bed
+
+12.Download the folder
+Unzip the file after uploading it to flux 
+Start an interactive job in flux 
+$   qsub -I -V -l procs=2 -l walltime=3:00:00 -A eeb416f17_flux -l qos=flux -q flux
+Load the necessary modules (i.e. BWA, Samtools, sam2counts.py)
+$ module load bwa
+$ module load samtools/1.5
+Index the transcriptome
+$ bwa index -a is SOAPdenovofilename.fa > bwa_file.stdout 2> bwafile.stderr
+Align the read set 1 to the transcriptome 
+$ bwa aln -t4 SOAPdenovofilename.fa shortfilename1.fq > filename1.sai 2> file1_bwa_aln.stderr
+Align read set 2 to the transcriptome
+$ bwa aln -t4 SOAPdenovofilename.fa shortfilename2.fq > filename2.sai 2> file2_bwa_aln.stderr
+Make the .sam alignment file
+$  bwa sampe SOAPdenovofilename.fa filename1.sai filename2.sai readfilename1.fq readfilename2.fq > filename.sam 2> filename_sampe.stderr
+Return only primary mapped reads
+$ samtools view -b filename.sam > filename.bam
+$ samtools view -F 0x904 -f 0x40 -b filename.bam > output.filter.bam
+Get read counts 
+$ samtools sort -@ 4 -m 8G output.filter.bam -o output.filter.sorted.bam
+$ samtools index output.filter.sorted.bam
+$ samtools idxstats output.filter.sorted.bam > output.counts.txt 
+Load module and create lab directory 
+$ cp -ar /scratch/data/workshops/eeb416/eeb416-workflows ~
+$ cp ~/eeb416-workflows/.wgetrc ~
+Change lab directory 
+$ cd ~/eeb416-workflows
+Examine RNAseq.txt, genexp.pbs
+Submit to flux 
+$ sub genexp.pbs
+$ stat -t jobid#
+
